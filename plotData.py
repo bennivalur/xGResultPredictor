@@ -7,7 +7,6 @@ import matplotlib.dates as mdates
 
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
-from sklearn.metrics import r2_score, mean_squared_error
 
 import statistics
 
@@ -40,7 +39,7 @@ def makePlot():
     plt.figtext(.5,.89,'Sum of xGA and xG of Opponent in Last 5 games vs Frequency of Clean Sheets',fontsize=8,ha='center')
     
     plt.ylabel('Frequency of Clean Sheets')
-    plt.xlabel('xGA + xG of Opponent')
+    plt.xlabel('xG of Opponent + Own xGA')
     
     plot_credits = 'Data: Understat | plot by: @bennivaluR_'
     plt.figtext(.68, .02, plot_credits, fontsize=6)

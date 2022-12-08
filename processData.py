@@ -8,8 +8,7 @@ from datetime import datetime
 from understat import Understat
 
 leagues = ['EPL','La_Liga','Bundesliga','Serie_A','Ligue_1','RFPL']
-seasons = ['2015','2016','2017','2018','2019','2020']
-
+seasons = ['2013','2014','2015','2016','2017','2018','2019','2020','2021','2022']
 
 #leagues = ['EPL']
 #seasons = ['2019']

@@ -14,22 +14,22 @@ teams = [
     {'title':'0','uid':-1},
     {'title':'Arsenal','uid': '83'},
     {'title':'Aston Villa','uid':'71'},
+    {'title':'Brentford','uid':'244'},
     {'title':'Brighton','uid':'220'},
     {'title':'Burnley','uid':'92'},
     {'title':'Chelsea', 'uid':'80'},
     {'title':'Crystal Palace','uid':'78'},
     {'title':'Everton','uid':'72'},
-    {'title':'Fulham','uid':'228'},
     {'title':'Leicester','uid':'75'},
     {'title':'Leeds','uid':'245'},
     {'title':'Liverpool','uid':'87'},
     {'title':'Manchester City','uid':'88'},
     {'title':'Manchester United','uid':'89'},
     {'title':'Newcastle United','uid':'86'},
-    {'title':'Sheffield United', 'uid':'238'},
+    {'title':'Norwich','uid':'79'},
     {'title':'Southampton', 'uid':'74'},
     {'title':'Tottenham','uid':'82'},
-    {'title':'West Bromwich Albion','uid':'76'},
+    {'title':'Watford','uid':'90'},
     {'title':'West Ham', 'uid':'81'},
     {'title':'Wolverhampton Wanderers','uid':'229'},
 ]
@@ -57,7 +57,7 @@ def fplFixtures():
         file.write(results)
 
 def getResults():
-    with open('results/EPL_2020_res.json', 'r') as all_weeks:
+    with open('results/EPL_2021_res.json', 'r') as all_weeks:
         results = json.load(all_weeks)
     return results
     
@@ -118,45 +118,47 @@ def calcXG(games,teamID):
 
 #getUnderStat(2020)
 #fplFixtures()
-week = getNextGameWeek()
+def predictCS():
+    fplFixtures()
 
-deadline = getGameWeek(week)['deadline_time']
-endOfGameWeek = getGameWeek(week+1)['deadline_time']
+    week = getNextGameWeek()
 
-#Get upcoming fixtures
-games = getFix()
-games = sorted(games, key=lambda t: datetime.strptime(t['kickoff_time'], '%Y-%m-%dT%H:%M:%SZ'))
+    deadline = getGameWeek(week)['deadline_time']
+    endOfGameWeek = getGameWeek(week+1)['deadline_time']
 
-#Filter games in upcoming gameweek
-gameweekGames = []
-for g in games:
-    if(g['kickoff_time'] < endOfGameWeek and g['kickoff_time'] > deadline):
-       gameweekGames.append([teams[g['team_h']],teams[g['team_a']]])
-    
-#Get games already played
-results = getResults()
+    #Get upcoming fixtures
+    games = getFix()
+    games = sorted(games, key=lambda t: datetime.strptime(t['kickoff_time'], '%Y-%m-%dT%H:%M:%SZ'))
 
-allOdds = []
+    #Filter games in upcoming gameweek
+    gameweekGames = []
+    for g in games:
+        if(g['kickoff_time'] < endOfGameWeek and g['kickoff_time'] > deadline):
+            gameweekGames.append([teams[g['team_h']],teams[g['team_a']]])
+        
+    #Get games already played
+    results = getResults()
 
-for g in gameweekGames:
-    #Get last 5 games a team player in
-    homeTeamGames = [x for x in results if x['h']['id'] == g[0]['uid'] or x['a']['id'] == g[0]['uid']][-5:]
-    awayTeamGames = [x for x in results if x['h']['id'] == g[1]['uid'] or x['a']['id'] == g[1]['uid']][-5:]
+    allOdds = []
 
-    #Calculate xg
-    homeXG = calcXG(homeTeamGames,g[0]['uid'])
-    awayXG = calcXG(awayTeamGames,g[1]['uid'])
+    for g in gameweekGames:
+        #Get last 5 games a team player in
+        homeTeamGames = [x for x in results if x['h']['id'] == g[0]['uid'] or x['a']['id'] == g[0]['uid']][-5:]
+        awayTeamGames = [x for x in results if x['h']['id'] == g[1]['uid'] or x['a']['id'] == g[1]['uid']][-5:]
 
-    #Calculate odds
-    homeOdds = round(calcOdds(awayXG['xG']+homeXG['xGA']),2)
-    awayOdds = round(calcOdds(homeXG['xG']+awayXG['xGA']),2)
+        #Calculate xg
+        homeXG = calcXG(homeTeamGames,g[0]['uid'])
+        awayXG = calcXG(awayTeamGames,g[1]['uid'])
 
-    allOdds.append({'team':g[0]['title'],'opponent':g[1]['title'],'csOdds':homeOdds})
-    allOdds.append({'team':g[1]['title'],'opponent':g[0]['title'],'csOdds':awayOdds})
+        #Calculate odds
+        homeOdds = round(calcOdds(awayXG['xG']+homeXG['xGA']),2)
+        awayOdds = round(calcOdds(homeXG['xG']+awayXG['xGA']),2)
+
+        allOdds.append({'team':g[0]['title'],'opponent':g[1]['title'],'csOdds':homeOdds})
+        allOdds.append({'team':g[1]['title'],'opponent':g[0]['title'],'csOdds':awayOdds})
 
 
-with open('clean_sheet_odds.json', 'w') as file:
-    file.write(json.dumps(allOdds))
+    with open('clean_sheet_odds.json', 'w') as file:
+        file.write(json.dumps(allOdds))
 
-data = pd.read_json('clean_sheet_odds.json')
-data.to_csv('clean_sheet_odds.csv')
+predictCS()

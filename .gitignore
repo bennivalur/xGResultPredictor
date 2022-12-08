@@ -3,3 +3,4 @@ main_data.json
 *.png
 *.json
 *.csv
+*predictCS.py
