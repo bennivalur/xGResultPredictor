@@ -7,7 +7,7 @@ from datetime import datetime
 
 from understat import Understat
 
-leagues = ['EPL','La_Liga','Bundesliga','Serie_A','Ligue_1','RFPL']
+leagues = ['EPL','La_Liga','Bundesliga','Serie_A','Ligue_1']
 seasons = ['2013','2014','2015','2016','2017','2018','2019','2020','2021','2022']
 
 #leagues = ['EPL']
@@ -58,8 +58,13 @@ def getPastGames(teamID:str,gameID:str,game, games,gameRange):
     else:
         cs = 0
 
+    if game['goals'][opponent] < game['goals'][team]:
+        win = 1
+    else:
+        win = 0
+
     
-    return {'xG':xG/len(gamesInRange),'xGA':xGA/len(gamesInRange),'conceded':int(game['goals'][opponent]),'cleanSheet':cs}
+    return {'xG':xG/len(gamesInRange),'xGA':xGA/len(gamesInRange),'conceded':int(game['goals'][opponent]),'cleanSheet':cs, 'win':win}
 
 
 def runSeason(league,season):
@@ -75,8 +80,8 @@ def runSeason(league,season):
         awayTeam = getPastGames(game['a']['id'],game['id'],game,games,gameRange)
 
         if(homeTeam != 'NoGames' and awayTeam != 'NoGames'):
-            data.append({'xgDiff':round(awayTeam['xG']+homeTeam['xGA'],1),'cleanSheet':homeTeam['cleanSheet']})
-            data.append({'xgDiff':round(homeTeam['xG']+awayTeam['xGA'],1),'cleanSheet':awayTeam['cleanSheet']})
+            data.append({'xgDiff':round(awayTeam['xG']+homeTeam['xGA'],1),'cleanSheet':homeTeam['cleanSheet'],'win':homeTeam['win'],'xGTotalDifference':round(homeTeam['xG']-homeTeam['xGA']-(awayTeam['xG']-awayTeam['xGA']),1)})
+            data.append({'xgDiff':round(homeTeam['xG']+awayTeam['xGA'],1),'cleanSheet':awayTeam['cleanSheet'],'win':awayTeam['win'],'xGTotalDifference':round(awayTeam['xG']-awayTeam['xGA']-(homeTeam['xG']-homeTeam['xGA']),1)})
 
     return data
         
