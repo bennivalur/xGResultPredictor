@@ -14,22 +14,22 @@ teams = [
     {'title':'0','uid':-1},
     {'title':'Arsenal','uid': '83'},
     {'title':'Aston Villa','uid':'71'},
+    {'title':'Bournemouth','uid':'-1'},
     {'title':'Brentford','uid':'244'},
     {'title':'Brighton','uid':'220'},
-    {'title':'Burnley','uid':'92'},
     {'title':'Chelsea', 'uid':'80'},
     {'title':'Crystal Palace','uid':'78'},
     {'title':'Everton','uid':'72'},
+    {'title':'Fulham','uid':'-1'},
     {'title':'Leicester','uid':'75'},
     {'title':'Leeds','uid':'245'},
     {'title':'Liverpool','uid':'87'},
     {'title':'Manchester City','uid':'88'},
     {'title':'Manchester United','uid':'89'},
     {'title':'Newcastle United','uid':'86'},
-    {'title':'Norwich','uid':'79'},
+    {'title':'Nottingham Forest','uid':'-1'},
     {'title':'Southampton', 'uid':'74'},
     {'title':'Tottenham','uid':'82'},
-    {'title':'Watford','uid':'90'},
     {'title':'West Ham', 'uid':'81'},
     {'title':'Wolverhampton Wanderers','uid':'229'},
 ]
@@ -62,20 +62,26 @@ def getResults():
     return results
     
 
-def calcOdds(xGSum):
-    odds = (xGSum * -1 * 0.103044) + 0.564388
+def calcCSOdds(xGSum):
+    odds = (xGSum * -1 * 0.114150) + 0.599407
+    if odds <= 0:
+        return 0
+    return odds
+
+def calcWinOdds(xGSum):
+    odds = (xGSum  * 0.116178) + 0.392198
     if odds <= 0:
         return 0
     return odds
 
 def getNextGameWeek():
-    """
+    
     fpl = urllib.request.urlopen("https://fantasy.premierleague.com/api/bootstrap-static/").read()
     fpl_players = json.loads(fpl)
     fpl_players = fpl_players['events']
     results = json.dumps(fpl_players)
     with open('events.json', 'w') as file:
-        file.write(results)"""
+        file.write(results)
 
     with open('events.json', 'r') as all_weeks:
         weeks = json.load(all_weeks)
@@ -123,8 +129,13 @@ def predictCS():
 
     week = getNextGameWeek()
 
+    week += 1
+
     deadline = getGameWeek(week)['deadline_time']
-    endOfGameWeek = getGameWeek(week+1)['deadline_time']
+    if(week == 38):
+        endOfGameWeek = "3023-05-28T14:00:00Z"
+    else:
+        endOfGameWeek = getGameWeek(week+1)['deadline_time']
 
     #Get upcoming fixtures
     games = getFix()
@@ -151,11 +162,24 @@ def predictCS():
         awayXG = calcXG(awayTeamGames,g[1]['uid'])
 
         #Calculate odds
-        homeOdds = round(calcOdds(awayXG['xG']+homeXG['xGA']),2)
-        awayOdds = round(calcOdds(homeXG['xG']+awayXG['xGA']),2)
+        homeOdds = round(calcCSOdds(awayXG['xG']+homeXG['xGA']),2)
+        awayOdds = round(calcCSOdds(homeXG['xG']+awayXG['xGA']),2)
 
-        allOdds.append({'team':g[0]['title'],'opponent':g[1]['title'],'csOdds':homeOdds})
-        allOdds.append({'team':g[1]['title'],'opponent':g[0]['title'],'csOdds':awayOdds})
+        #Calculate win odds
+        homeWinOdds = round(calcWinOdds((homeXG['xG']+awayXG['xGA']) - (awayXG['xG']+homeXG['xGA'])),2)
+        awayWinOdds = round(calcWinOdds((awayXG['xG']+homeXG['xGA']) - (homeXG['xG']+awayXG['xGA'])),2)
+
+        allOdds.append({'team':g[0]['title'],'opponent':g[1]['title'],'csOdds':homeOdds,'winOdds':homeWinOdds})
+        allOdds.append({'team':g[1]['title'],'opponent':g[0]['title'],'csOdds':awayOdds,'winOdds':awayWinOdds})
+
+
+    for i,x in enumerate(allOdds):
+        if i % 2 == 0:
+            print(f'{allOdds[i]["team"]}: {allOdds[i]["winOdds"]} - DRAW: {round(1 - allOdds[i]["winOdds"] - allOdds[i+1]["winOdds"],2)} - {allOdds[i+1]["team"]}: {allOdds[i+1]["winOdds"]}')
+        else:
+            print("-----------------------------------------------------------------------------")
+
+
 
 
     with open('clean_sheet_odds.json', 'w') as file:
