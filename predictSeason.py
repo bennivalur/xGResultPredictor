@@ -131,7 +131,7 @@ def processSimulations():
             resultOfSims[keys][str(i+1)] = 0
     
     
-    with open('ssimulations.json', 'r') as simulations:
+    with open('simulations.json', 'r') as simulations:
         s = json.load(simulations)
 
     resultOfSims['numberOfSimulations'] = len(s)
