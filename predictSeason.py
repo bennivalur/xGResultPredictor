@@ -123,7 +123,7 @@ def runSimulations(n):
     with open('simulations.json', 'w') as file:
         file.write(json.dumps(simulations))
 
-def processSimulations():
+def processSimulations(n):
     resultOfSims = {}
     for keys in teams:
         resultOfSims[keys] = {}
@@ -134,7 +134,7 @@ def processSimulations():
     with open('simulations.json', 'r') as simulations:
         s = json.load(simulations)
 
-    resultOfSims['numberOfSimulations'] = len(s)
+    resultOfSims['numberOfSimulations'] = n
     print("len done")
 
     for sim in s:
@@ -144,19 +144,52 @@ def processSimulations():
     with open('resultOfSimulations.json', 'w') as file:
         file.write(json.dumps(resultOfSims))
 
+def printResults(n):
+    
+    with open('resultOfSimulations.json', 'r') as resultOfSims:
+        resultOfSims = json.load(resultOfSims)
 
+    longestTeamName = findLongestName(resultOfSims.keys())
+    print(longestTeamName)
+    header = balanceTeamNameSpaces('Teams',longestTeamName)
+    for i in range(20):
+        header = header + ' '*(5-len(str(i+1))) + str(i+1) + '|'
+    
+    print(header)
+    for keys in resultOfSims:
+        line = balanceTeamNameSpaces(keys,longestTeamName)
+        if keys != 'numberOfSimulations':
+            for pos in resultOfSims[keys]:
+                #print(pos)
+                line += balanceNumber(resultOfSims[keys][pos],n,1) + '|'
+            print(line)
+
+def findLongestName(teams):
+    return len(max(teams,key=len))
+
+
+def balanceTeamNameSpaces(team,longestTeamName):
+    spaces = longestTeamName - len(team)
+    return  ' '*spaces + team +'|'
+
+def balanceNumber(number,n,sigDigits):
+    strLength = sigDigits + 4
+    perc = round(number/n*100,sigDigits)
+    numLength = len(str(perc))
+    return ' '*(strLength-numLength) + str(perc)
 
 
 
 #getUnderStat('2022')
 
-"""weeks = [37,38]
-n = 2
-print('--------------------')
+weeks = [37,38]
+n = 1000000
+"""print('--------------------')
 #Get team name and actual points
 
 leagueStandings = getRealLeagueStandings()
 
 runSimulations(n)"""
 
-processSimulations()
+#processSimulations(n)
+printResults(n)
