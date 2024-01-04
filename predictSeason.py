@@ -33,6 +33,7 @@ teams = {
     'Wolverhampton Wanderers':0
 }
 
+
 async def getFixtures(season):
     async with aiohttp.ClientSession() as session:
         understat = Understat(session)
@@ -108,7 +109,7 @@ def getRealLeagueStandings():
 
     return leagueStandings
 
-def runSimulations(n):
+def runSimulations(n,leagueStandings):
     simulations = []
     for i in range(n):
         results = runWeeks(weeks)
@@ -180,16 +181,16 @@ def balanceNumber(number,n,sigDigits):
 
 
 
-#getUnderStat('2022')
+getUnderStat('2022')
 
 weeks = [37,38]
 n = 1000000
-"""print('--------------------')
+print('--------------------')
 #Get team name and actual points
 
 leagueStandings = getRealLeagueStandings()
 
-runSimulations(n)"""
+runSimulations(n,leagueStandings)
 
-#processSimulations(n)
+processSimulations(n)
 printResults(n)

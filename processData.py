@@ -72,9 +72,9 @@ def runSeason(league,season):
         games = json.load(all_games)
     
     data = []
+    singleGameXGDIFFWinPercentage = []
 
     games = sorted(games, key=lambda t: datetime.strptime(t['datetime'], '%Y-%m-%d %H:%M:%S'))
-    game = games[15]
     for game in games:
         homeTeam = getPastGames(game['h']['id'],game['id'],game,games,gameRange)
         awayTeam = getPastGames(game['a']['id'],game['id'],game,games,gameRange)
@@ -83,16 +83,26 @@ def runSeason(league,season):
             data.append({'xgDiff':round(awayTeam['xG']+homeTeam['xGA'],1),'cleanSheet':homeTeam['cleanSheet'],'win':homeTeam['win'],'xGTotalDifference':round(homeTeam['xG']-homeTeam['xGA']-(awayTeam['xG']-awayTeam['xGA']),1)})
             data.append({'xgDiff':round(homeTeam['xG']+awayTeam['xGA'],1),'cleanSheet':awayTeam['cleanSheet'],'win':awayTeam['win'],'xGTotalDifference':round(awayTeam['xG']-awayTeam['xGA']-(homeTeam['xG']-homeTeam['xGA']),1)})
 
-    return data
+            singleGameXGDIFFWinPercentage.append({'win':int(game['goals']['h']>game['goals']['a']),'xGTotalDifference':round(float(game['xG']['h'])-float(game['xG']['a']),1)})
+            singleGameXGDIFFWinPercentage.append({'win':int(game['goals']['a']>game['goals']['h']),'xGTotalDifference':round(float(game['xG']['a'])-float(game['xG']['h']),1)})
+
+    return [data,singleGameXGDIFFWinPercentage]
         
 def processData():
     data = []
+    singleGameXGDIFFWinPercentage = []
     for l in leagues:
         for s in seasons:
             print("Running " +l + ':' + s)
-            data += runSeason(l,s)
+            results = runSeason(l,s)
+            data += results[0]
+            singleGameXGDIFFWinPercentage += results[1]
+
 
     with open('main_data.json', 'w') as file:
         file.write(json.dumps(data))
+
+    with open('singleGameXGDiffWinRate_data.json', 'w') as file:
+        file.write(json.dumps(singleGameXGDIFFWinPercentage))
 
 processData()

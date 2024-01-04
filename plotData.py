@@ -100,6 +100,47 @@ def makeWinPlot():
     #Save the figure as a png
     plt.savefig( _file_name, facecolor=fig.get_facecolor(), dpi=1200)
 
+def makeSingleGameWinPlot():
+    data = pd.read_json('singleGameXGDiffWinRate_data.json')
+    
+    data = data.loc[(data['xGTotalDifference'] > -3) & (data['xGTotalDifference'] < 3)].groupby('xGTotalDifference').mean()
+    data = data.reset_index()
+    
+    text_color = '#FFFFFF'
+    
+    
+    x = data.xGTotalDifference
+    y = data.win
+
+    fig, ax = plt.subplots()
+
+    plt.grid()
+    ax.scatter(x, y,s=10,color='#F96E46')
+    ax.set_facecolor('#3D315B')
+    fig.set_facecolor('#3D315B')
+
+    _title = 'xG & Wins'
+    
+    plt.figtext(.5,.93,_title,fontsize=12,ha='center',color=text_color)
+    plt.figtext(.5,.89,' Win% vs xG Differential',fontsize=8,ha='center',color=text_color)
+    
+    plt.ylabel('Frequency of Wins',color=text_color)
+    plt.xlabel('xG Difference',color=text_color)
+    
+    plot_credits = 'Data: Understat | plot by: @bennivaluR_'
+    plt.figtext(.68, .02, plot_credits, fontsize=6,color=text_color)
+    
+
+    ax.spines['bottom'].set_color(text_color)
+    ax.spines['top'].set_color(text_color) 
+    ax.spines['right'].set_color(text_color)
+    ax.spines['left'].set_color(text_color)
+    ax.tick_params(axis='x', colors=text_color)
+    ax.tick_params(axis='y', colors=text_color)
+    _file_name = 'singleGameXGDiffWinRate'
+    #Save the figure as a png
+    plt.savefig( _file_name, facecolor=fig.get_facecolor(), dpi=1200)
 
 makeXGPlot()
 makeWinPlot()
+makeSingleGameWinPlot()
