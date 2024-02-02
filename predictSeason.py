@@ -5,6 +5,7 @@ import urllib.request
 import aiohttp
 from datetime import datetime
 import random
+from predictCS import predictCS
 
 import pandas as pd
 
@@ -16,18 +17,18 @@ teams = {
     'Bournemouth':0,
     'Brentford':0,
     'Brighton':0,
+    'Burnley':0,
     'Chelsea':0,
     'Crystal Palace':0,
     'Everton':0,
     'Fulham':0,
-    'Leicester':0,
-    'Leeds':0,
     'Liverpool':0,
+    'Luton':0,
     'Manchester City':0,
     'Manchester United':0,
     'Newcastle United':0,
     'Nottingham Forest':0,
-    'Southampton':0,
+    'Sheffield United':0,
     'Tottenham':0,
     'West Ham':0,
     'Wolverhampton Wanderers':0
@@ -56,25 +57,25 @@ def runWeeks(weeks):
         'Bournemouth':0,
         'Brentford':0,
         'Brighton':0,
+        'Burnley':0,
         'Chelsea':0,
         'Crystal Palace':0,
         'Everton':0,
         'Fulham':0,
-        'Leicester':0,
-        'Leeds':0,
         'Liverpool':0,
+        'Luton':0,
         'Manchester City':0,
         'Manchester United':0,
         'Newcastle United':0,
         'Nottingham Forest':0,
-        'Southampton':0,
+        'Sheffield United':0,
         'Tottenham':0,
         'West Ham':0,
         'Wolverhampton Wanderers':0
     }
 
     for w in weeks:
-        with open(str(w)+'_clean_sheet_odds.json', 'r') as weekGames:
+        with open('epl/' + str(w)+'_clean_sheet_odds.json', 'r') as weekGames:
             games = json.load(weekGames)
         
         for i,g in enumerate(games):
@@ -181,10 +182,12 @@ def balanceNumber(number,n,sigDigits):
 
 
 
-getUnderStat('2022')
+getUnderStat('2023')
 
-weeks = [37,38]
+weeks = [21,22,23,24,25,26,27,28,29,30,31,32,33,34,36,37,38]
+predictCS(weeks)
 n = 1000000
+#n=10
 print('--------------------')
 #Get team name and actual points
 
