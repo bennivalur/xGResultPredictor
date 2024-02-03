@@ -169,13 +169,14 @@ def predictCS(weeks):
             allOdds.append({'team':g[0]['title'],'opponent':g[1]['title'],'csOdds':homeOdds,'winOdds':homeWinOdds})
             allOdds.append({'team':g[1]['title'],'opponent':g[0]['title'],'csOdds':awayOdds,'winOdds':awayWinOdds})
 
-
+        #Print the odds
+        '''
         for i,x in enumerate(allOdds):
             if i % 2 == 0:
                 print(f'{allOdds[i]["team"]}: {allOdds[i]["winOdds"]} - DRAW: {round(1 - allOdds[i]["winOdds"] - allOdds[i+1]["winOdds"],2)} - {allOdds[i+1]["team"]}: {allOdds[i+1]["winOdds"]}')
             else:
                 print("-----------------------------------------------------------------------------")
-
+        '''
 
 
 

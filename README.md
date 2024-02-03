@@ -1,5 +1,5 @@
 # Read Me
-
+TODO: clean up some things and make a runMe file that will be the control center
 ## getData.py
 Get results from leagues and seasons that understat offers
 

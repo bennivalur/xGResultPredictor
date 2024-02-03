@@ -137,7 +137,6 @@ def processSimulations(n):
         s = json.load(simulations)
 
     resultOfSims['numberOfSimulations'] = n
-    print("len done")
 
     for sim in s:
         for i,t in enumerate(sim):
@@ -184,7 +183,7 @@ def balanceNumber(number,n,sigDigits):
 
 getUnderStat('2023')
 
-weeks = [21,22,23,24,25,26,27,28,29,30,31,32,33,34,36,37,38]
+weeks = [23,24,25,26,27,28,29,30,31,32,33,34,36,37,38]
 predictCS(weeks)
 n = 1000000
 #n=10
