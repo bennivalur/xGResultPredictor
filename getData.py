@@ -6,10 +6,7 @@ import aiohttp
 
 from understat import Understat
 
-#leagues = ['EPL','La_Liga','Bundesliga','Serie_A','Ligue_1','RFPL']
-leagues = ['EPL']
-seasons = ['2023']
-#seasons = ['2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023']
+
 async def main(league:str,season:str):
     async with aiohttp.ClientSession() as session:
         understat = Understat(session)
@@ -26,9 +23,8 @@ def getSeasons(league:str,season:str):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main(league,season))
 
-def getResults():
+def getResults(leagues,seasons):
     for l in leagues:
         for s in seasons:
             getSeasons(l,s)
 
-getResults()

@@ -1,8 +1,5 @@
-import asyncio
+
 import json
-import os
-import urllib.request
-import aiohttp
 from datetime import datetime
 
 from understat import Understat
@@ -88,7 +85,7 @@ def runSeason(league,season):
 
     return [data,singleGameXGDIFFWinPercentage]
         
-def processData():
+def processData(leagues,seasons):
     data = []
     singleGameXGDIFFWinPercentage = []
     for l in leagues:
@@ -105,4 +102,3 @@ def processData():
     with open('singleGameXGDiffWinRate_data.json', 'w') as file:
         file.write(json.dumps(singleGameXGDIFFWinPercentage))
 
-processData()

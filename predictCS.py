@@ -182,5 +182,3 @@ def predictCS(weeks):
 
         with open('epl/' + str(week) + '_clean_sheet_odds.json', 'w') as file:
             file.write(json.dumps(allOdds))
-
-"predictCS()"

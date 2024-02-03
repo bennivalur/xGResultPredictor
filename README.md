@@ -1,10 +1,8 @@
 # Read Me
-TODO: clean up some things and make a runMe file that will be the control center
-## getData.py
-Get results from leagues and seasons that understat offers
+Two main files
 
-## processData.py
-Loop through leagues and seasons and find and collect the data on to the form we want
+## runMe.py
+Runs through all the steps.
 
-## plotData.py
-Plot the data and output the trendline formula
+## predictSeason.py
+Simulates the rest of the season

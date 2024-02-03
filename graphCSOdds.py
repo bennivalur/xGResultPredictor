@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw
 from PIL import ImageFont
 import json
-from predictCS import getNextGameWeek
 from teams import teams
 
 width = 850
@@ -90,4 +89,3 @@ def drawCleanSheetOdds(week):
     im.save('csOdds/week_' + str(week) + '_' + '_odds' + '.png', quality=95)
 
 
-drawCleanSheetOdds(getNextGameWeek())

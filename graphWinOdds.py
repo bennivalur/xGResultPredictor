@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw
 from PIL import ImageFont
 import json
-from predictCS import getNextGameWeek
 
 from teams import teams
 
@@ -104,4 +103,3 @@ def drawWinOdds(week):
     im.save('winOdds/week_' + str(week) + '_odds' + '.png', quality=95)
 
 
-drawWinOdds(getNextGameWeek())

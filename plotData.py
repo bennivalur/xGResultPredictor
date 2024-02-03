@@ -1,14 +1,10 @@
-import json
 import pandas as pd
-import os
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import numpy as np
-
-import statistics
 
 def makeXGPlot():
     data = pd.read_json('main_data.json')
@@ -141,6 +137,3 @@ def makeSingleGameWinPlot():
     #Save the figure as a png
     plt.savefig( _file_name, facecolor=fig.get_facecolor(), dpi=1200)
 
-makeXGPlot()
-makeWinPlot()
-makeSingleGameWinPlot()
