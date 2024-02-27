@@ -6,6 +6,7 @@ import aiohttp
 from datetime import datetime
 import random
 from predictCS import predictCS
+from graphSeasonSimulation import graphResultsOfSimulation
 
 import pandas as pd
 
@@ -151,7 +152,6 @@ def printResults(n):
         resultOfSims = json.load(resultOfSims)
 
     longestTeamName = findLongestName(resultOfSims.keys())
-    print(longestTeamName)
     header = balanceTeamNameSpaces('Teams',longestTeamName)
     for i in range(20):
         header = header + ' '*(5-len(str(i+1))) + str(i+1) + '|'
@@ -196,3 +196,4 @@ runSimulations(n,leagueStandings)
 
 processSimulations(n)
 printResults(n)
+graphResultsOfSimulation()
