@@ -35,7 +35,7 @@ def drawWinOdds(week):
     #background and border
     draw.rectangle((0,0, width,header + height+table_header_height), fill=background_color, outline=outline_color,width=10)
 
-    with open('epl/' + str(week) + '_clean_sheet_odds.json','r') as cs:
+    with open('epl/' + str(week) + '__odds.json','r') as cs:
         clean_sheets = json.load(cs)
     
     player_height = (height - header - table_header_height ) / (len(clean_sheets)/2)

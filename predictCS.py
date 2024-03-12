@@ -14,21 +14,21 @@ teams = [
     {'title':'0','uid':-1},
     {'title':'Arsenal','uid': '83'},
     {'title':'Aston Villa','uid':'71'},
-    {'title':'Bournemouth','uid':'-1'},
+    {'title':'Bournemouth','uid':'73'},
     {'title':'Brentford','uid':'244'},
     {'title':'Brighton','uid':'220'},
-    {'title':'Burnley','uid':'-1'},
+    {'title':'Burnley','uid':'92'},
     {'title':'Chelsea', 'uid':'80'},
     {'title':'Crystal Palace','uid':'78'},
     {'title':'Everton','uid':'72'},
-    {'title':'Fulham','uid':'-1'},
+    {'title':'Fulham','uid':'228'},
     {'title':'Liverpool','uid':'87'},
-    {'title':'Luton','uid':'245'},
+    {'title':'Luton','uid':'256'},
     {'title':'Manchester City','uid':'88'},
     {'title':'Manchester United','uid':'89'},
     {'title':'Newcastle United','uid':'86'},
-    {'title':'Nottingham Forest','uid':'-1'},
-    {'title':'Sheffield United', 'uid':'74'},
+    {'title':'Nottingham Forest','uid':'249'},
+    {'title':'Sheffield United', 'uid':'238'},
     {'title':'Tottenham','uid':'82'},
     {'title':'West Ham', 'uid':'81'},
     {'title':'Wolverhampton Wanderers','uid':'229'},
@@ -56,8 +56,8 @@ def fplFixtures():
     with open('fixtures.json', 'w') as file:
         file.write(results)
 
-def getResults():
-    with open('results/EPL_2023_res.json', 'r') as all_weeks:
+def getResults(league):
+    with open('results/'+ league +'_2023_res.json', 'r') as all_weeks:
         results = json.load(all_weeks)
     return results
     
@@ -97,8 +97,8 @@ def getGameWeek(week):
     return games[week-1]
 
 
-def getFix():
-    with open('fixtures.json', 'r') as all_games:
+def getFix(league):
+    with open('fixtures/' +league + '_fixtures.json', 'r') as all_games:
         games = json.load(all_games)
     
     return games
@@ -106,7 +106,7 @@ def getFix():
 def calcXG(games,teamID):
     xG = 0
     xGA = 0
-
+    
     for tg in games:
         if(tg['h']['id'] == teamID):
             team = 'h'
@@ -117,14 +117,14 @@ def calcXG(games,teamID):
 
         xG += float(tg['xG'][team])
         xGA += float(tg['xG'][opponent])
-    
-    xG = xG/5
-    xGA = xGA/5
+    if(len(games) != 0):
+        xG = xG/len(games)
+        xGA = xGA/len(games)
     return {'xG':xG,'xGA':xGA}
 
 #getUnderStat(2020)
 #fplFixtures()
-def predictCS(weeks):
+def predictCS(weeks,gameRange):
     fplFixtures()
     for week in weeks:
 
@@ -135,7 +135,7 @@ def predictCS(weeks):
             endOfGameWeek = getGameWeek(week+1)['deadline_time']
 
         #Get upcoming fixtures
-        games = getFix()
+        games = getFix('epl')
         games = sorted(games, key=lambda t: datetime.strptime(t['kickoff_time'], '%Y-%m-%dT%H:%M:%SZ'))
 
         #Filter games in upcoming gameweek
@@ -145,15 +145,16 @@ def predictCS(weeks):
                 gameweekGames.append([teams[g['team_h']],teams[g['team_a']]])
             
         #Get games already played
-        results = getResults()
+        results = getResults('EPL')
 
         allOdds = []
 
         for g in gameweekGames:
-            #Get last 5 games a team player in
-            homeTeamGames = [x for x in results if x['h']['id'] == g[0]['uid'] or x['a']['id'] == g[0]['uid']][-5:]
-            awayTeamGames = [x for x in results if x['h']['id'] == g[1]['uid'] or x['a']['id'] == g[1]['uid']][-5:]
-
+            #Get last X games a team played in
+            homeTeamGames = [x for x in results if x['h']['id'] == g[0]['uid'] or x['a']['id'] == g[0]['uid']][-gameRange:]
+            awayTeamGames = [x for x in results if x['h']['id'] == g[1]['uid'] or x['a']['id'] == g[1]['uid']][-gameRange:]
+            if(len(homeTeamGames) == 0):
+                print(g)
             #Calculate xg
             homeXG = calcXG(homeTeamGames,g[0]['uid'])
             awayXG = calcXG(awayTeamGames,g[1]['uid'])
@@ -180,5 +181,52 @@ def predictCS(weeks):
 
 
 
-        with open('epl/' + str(week) + '_clean_sheet_odds.json', 'w') as file:
+        with open('epl/' + str(week) + '_odds.json', 'w') as file:
             file.write(json.dumps(allOdds))
+
+def predictRestOfSeasonCS(league,gameRange):
+    
+        
+    #Get upcoming fixtures
+    games = getFix(league)
+    
+    #Get games already played
+    results = getResults(league)
+
+    allOdds = []
+
+    for g in games:
+        #Get last X games a team played in
+        homeTeamGames = [x for x in results if x['h']['id'] == g['h']['id'] or x['a']['id'] == g['h']['id']][-gameRange:]
+        awayTeamGames = [x for x in results if x['h']['id'] == g['a']['id'] or x['a']['id'] == g['a']['id']][-gameRange:]
+        if(len(homeTeamGames) == 0):
+            print(g)
+            print(results[0])
+        #Calculate xg
+        homeXG = calcXG(homeTeamGames,g['h']['id'])
+        awayXG = calcXG(awayTeamGames,g['a']['id'])
+
+        #Calculate odds
+        homeOdds = round(calcCSOdds(awayXG['xG']+homeXG['xGA']),2)
+        awayOdds = round(calcCSOdds(homeXG['xG']+awayXG['xGA']),2)
+
+        #Calculate win odds
+        homeWinOdds = round(calcWinOdds((homeXG['xG']+awayXG['xGA']) - (awayXG['xG']+homeXG['xGA'])),2)
+        awayWinOdds = round(calcWinOdds((awayXG['xG']+homeXG['xGA']) - (homeXG['xG']+awayXG['xGA'])),2)
+
+        allOdds.append({'team':g['h']['title'],'opponent':g['a']['title'],'csOdds':homeOdds,'winOdds':homeWinOdds})
+        allOdds.append({'team':g['a']['title'],'opponent':g['h']['title'],'csOdds':awayOdds,'winOdds':awayWinOdds})
+
+    #Print the odds
+    '''
+    for i,x in enumerate(allOdds):
+        if i % 2 == 0:
+            print(f'{allOdds[i]["team"]}: {allOdds[i]["winOdds"]} - DRAW: {round(1 - allOdds[i]["winOdds"] - allOdds[i+1]["winOdds"],2)} - {allOdds[i+1]["team"]}: {allOdds[i+1]["winOdds"]}')
+        else:
+            print("-----------------------------------------------------------------------------")
+    '''
+
+
+
+    with open('csOdds/' + league +'_odds.json', 'w') as file:
+        file.write(json.dumps(allOdds))

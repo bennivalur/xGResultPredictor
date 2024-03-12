@@ -8,7 +8,8 @@ from datetime import date
 
 from teams import teams
 
-def graphResultsOfSimulation():
+def graphResultsOfSimulation(league):
+    
     width = 2275
     height = 1750
     header = 50
@@ -28,12 +29,12 @@ def graphResultsOfSimulation():
 
 
 
-    with open('resultOfSimulations.json','r') as results:
+    with open('simResults/'+ league + '_resultOfSimulations.json','r') as results:
         results = json.load(results)
 
     numberOfSimulations = results['numberOfSimulations']
 
-    draw.text((width/2,header/2+30),'Simulating the Rest of the Premier League Season (' + str(numberOfSimulations) + ' times)',(0, 0, 0),anchor='ms',font=font)
+    draw.text((width/2,header/2+30),'Simulating the Rest of the ' + league + ' Season (' + str(numberOfSimulations) + ' times)',(0, 0, 0),anchor='ms',font=font)
 
     #We need to find the average finishing position of each team
     avgPosition = {}
@@ -58,20 +59,20 @@ def graphResultsOfSimulation():
     l_space_offset = 100
     h_offset = 125
 
-    #print headers and vertical lines
-        
-
-
     for index,team in enumerate(avgPosition):
         
-
-        #Print team logos
-        logos.append(Image.open('logos/'+ getIMGName(team) +'.PNG', 'r'))
         temp_h_offset = h_offset + h_space_offset*index
         temp_l_offset = 75 + l_offset + l_space_offset*index
         offset = (l_offset,temp_h_offset)
-        im.paste(logos[index], offset,mask=logos[index])
-
+        if(league == 'EPL'):
+        #Print team logos
+            logos.append(Image.open('logos/'+ getIMGName(team) +'.PNG', 'r'))
+            im.paste(logos[index], offset,mask=logos[index])
+        else:
+            offset = (80,temp_h_offset+20)
+            draw.text(offset,team[0:3],(0, 0, 0),font=font)
+        
+        l_offset = 100
         #print table header
         draw.text((temp_l_offset + (l_offset/2),h_offset-10),str(index+1),(0, 0, 0),anchor='ms',font=font)
         temp_h_offset = h_offset + h_space_offset*index
@@ -97,5 +98,5 @@ def graphResultsOfSimulation():
     today = date.today()
     draw.text((width/2,height),'Model and Visual by @bennivaluR_ (' + str(today) + ')',(0,0,0),anchor='ms',font=font)
 
-    im.save('resultsOfSeasonSimulation' + '.png', quality=95)
+    im.save('simResults/' + league + '_resultsOfSeasonSimulation' + '.png', quality=95)
 

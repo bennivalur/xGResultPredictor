@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 
 from understat import Understat
+import aiohttp
+import asyncio
 
 leagues = ['EPL','La_Liga','Bundesliga','Serie_A','Ligue_1']
 seasons = ['2013','2014','2015','2016','2017','2018','2019','2020','2021','2022']
@@ -84,13 +86,27 @@ def runSeason(league,season):
             singleGameXGDIFFWinPercentage.append({'win':int(game['goals']['a']>game['goals']['h']),'xGTotalDifference':round(float(game['xG']['a'])-float(game['xG']['h']),1)})
 
     return [data,singleGameXGDIFFWinPercentage]
+
+async def getFixtures(league,season):
+    async with aiohttp.ClientSession() as session:
+        understat = Understat(session)
+        table = await understat.get_league_table(
+            league, season
+        )
+
+        data = json.dumps(table)
+        with open('leagueTables/' + league + '_' + season + '_table.json', 'w') as file:
+            file.write(data)
         
 def processData(leagues,seasons):
+    
     data = []
     singleGameXGDIFFWinPercentage = []
     for l in leagues:
         for s in seasons:
             print("Running " +l + ':' + s)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(getFixtures(l,s))
             results = runSeason(l,s)
             data += results[0]
             singleGameXGDIFFWinPercentage += results[1]
